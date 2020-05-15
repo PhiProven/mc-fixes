@@ -1,0 +1,4 @@
+[submodule "dependencies/mc-fix_mc-170012"]
+	path = dependencies/mc-fix_mc-170012
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-170012

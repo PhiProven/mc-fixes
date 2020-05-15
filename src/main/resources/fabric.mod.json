@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "mc-fix_mc-170010",
+  "version": "${version}",
+
+  "name": "MC-Fix MC-170010",
+  "description": "Fixes MC-170010",
+  "authors": [
+    "PhiPro"
+  ],
+  "contact": {
+    "sources": "https://github.com/PhiPro95/mc-fixes/commits/mc-170010"
+  },
+
+  "license": "MIT",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+    ]
+  },
+  "mixins": [
+  ],
+  "depends": {
+    "fabricloader": ">=0.8.0",
+    "minecraft": [">=1.14"],
+    "mc-fix_mc-170012": "*"
+  }
+}
