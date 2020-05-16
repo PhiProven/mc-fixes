@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "ocd.mc170012.mixin",
 	"mixins": [
-		"ChunkStatusMixin"
+		"ChunkStatusMixin",
+		"ServerLightingProviderMixin",
+		"ThreadedAnvilChunkStorageAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

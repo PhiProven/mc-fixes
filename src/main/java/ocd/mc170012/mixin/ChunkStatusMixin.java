@@ -26,6 +26,7 @@ import net.minecraft.world.Heightmap.Type;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.ProtoChunk;
+import ocd.mc170012.ServerLightingProviderAccessor;
 
 @Mixin(ChunkStatus.class)
 public abstract class ChunkStatusMixin
@@ -47,10 +48,12 @@ public abstract class ChunkStatusMixin
     @Unique
     private static CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> getPreLightFuture(final ChunkStatus chunkStatus, final ServerLightingProvider lightingProvider, final Chunk chunk)
     {
-        if (!chunk.getStatus().isAtLeast(chunkStatus))
-            ((ProtoChunk)chunk).setStatus(chunkStatus);
+        return ((ServerLightingProviderAccessor) lightingProvider).setupLightmaps(chunk).thenApply((chunk_) -> {
+            if (!chunk_.getStatus().isAtLeast(chunkStatus))
+                ((ProtoChunk)chunk_).setStatus(chunkStatus);
 
-        return CompletableFuture.completedFuture(Either.left(chunk));
+            return Either.left(chunk_);
+        });
     }
 
     @ModifyArg(

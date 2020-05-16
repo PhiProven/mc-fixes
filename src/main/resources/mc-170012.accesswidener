@@ -2,3 +2,5 @@ accessWidener	v1	named
 
 accessible  class   net/minecraft/world/chunk/ChunkStatus$Task
 accessible  class   net/minecraft/world/chunk/ChunkStatus$NoGenTask
+
+accessible  class   net/minecraft/server/world/ServerLightingProvider$Stage
