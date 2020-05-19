@@ -1,0 +1,4 @@
+accessWidener	v1	named
+
+accessible  method   net/minecraft/world/chunk/light/LightStorage   <init>  (Lnet/minecraft/world/LightType;Lnet/minecraft/world/chunk/ChunkProvider;Lnet/minecraft/world/chunk/ChunkToNibbleArrayMap;)V
+accessible  class   net/minecraft/server/world/ServerLightingProvider$Stage

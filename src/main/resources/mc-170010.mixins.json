@@ -2,7 +2,11 @@
 	"required": true,
 	"package": "ocd.mc170010.mixin",
 	"mixins": [
-		"SkyLightStorageMixin"
+		"SkyLightStorageMixin",
+		"ServerLightingProviderMixin",
+		"LightingProviderMixin",
+		"ChunkLightProviderMixin",
+		"LightStorageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
