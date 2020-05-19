@@ -2,3 +2,7 @@
 	path = dependencies/mc-fix_mc-170012
 	url = https://github.com/PhiPro95/mc-fixes.git
 	branch = mc-170012
+[submodule "dependencies/mc-fix_mc-169913"]
+	path = dependencies/mc-fix_mc-169913
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-169913
