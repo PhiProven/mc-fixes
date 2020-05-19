@@ -23,6 +23,10 @@ dependencies {
 	// You may need to force-disable transitiveness on them.
 }
 
+minecraft {
+	accessWidener = file("src/main/resources/mc-169913.accesswidener")
+}
+
 processResources {
 	inputs.property "version", project.version
 

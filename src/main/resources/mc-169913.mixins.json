@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "ocd.mc169913.mixin",
+	"mixins": [
+		"WorldChunkMixin",
+		"WorldMixin",
+		"ServerLightingProviderMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

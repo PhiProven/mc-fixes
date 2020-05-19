@@ -21,7 +21,9 @@
     ]
   },
   "mixins": [
+    "mc-169913.mixins.json"
   ],
+  "accessWidener" : "mc-169913.accesswidener",
   "depends": {
     "fabricloader": ">=0.8.0",
     "minecraft": [">=1.14"]
