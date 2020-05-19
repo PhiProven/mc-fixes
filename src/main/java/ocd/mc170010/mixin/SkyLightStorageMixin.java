@@ -5,7 +5,9 @@ import java.util.Arrays;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.light.SkyLightStorage;
@@ -31,5 +33,29 @@ public abstract class SkyLightStorageMixin
             Arrays.fill(ret.asByteArray(), (byte) -1);
 
         return ret;
+    }
+
+    @Inject(
+        method = "method_20809(J)V",
+        at = @At(
+            value = "HEAD"
+        ),
+        cancellable = true
+    )
+    private void disable_method_20809(final CallbackInfo ci)
+    {
+        ci.cancel();
+    }
+
+    @Inject(
+        method = "method_20810(J)V",
+        at = @At(
+            value = "HEAD"
+        ),
+        cancellable = true
+    )
+    private void disable_method_20810(final CallbackInfo ci)
+    {
+        ci.cancel();
     }
 }
