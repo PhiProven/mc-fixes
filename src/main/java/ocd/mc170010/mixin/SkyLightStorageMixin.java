@@ -2,20 +2,26 @@ package ocd.mc170010.mixin;
 
 import java.util.Arrays;
 
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.LightType;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkProvider;
+import net.minecraft.world.chunk.light.ChunkLightProvider;
 import net.minecraft.world.chunk.light.LightStorage;
 import net.minecraft.world.chunk.light.SkyLightStorage;
 import net.minecraft.world.chunk.light.SkyLightStorage.Data;
@@ -94,5 +100,111 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
     protected int getInitialLevel(final long id)
     {
         return Math.min(super.getInitialLevel(id), ChunkSectionPos.getY(id) == 16 && this.preInitSkylightChunks.contains(ChunkSectionPos.withZeroZ(id)) ? 1 : 2);
+    }
+
+    @Unique
+    private final LongSet initSkylightChunks = new LongOpenHashSet();
+
+    @Shadow
+    @Final
+    private LongSet lightEnabled;
+
+    @Inject(
+        method = "setLightEnabled(JZ)V",
+        at = @At(
+            value = "HEAD"
+        ),
+        cancellable = true
+    )
+    private void setLightEnabled(final long pos, final boolean enabled, final CallbackInfo ci)
+    {
+        if (enabled)
+        {
+            if (preInitSkylightChunks.contains(pos))
+                initSkylightChunks.add(pos);
+            else
+                this.lightEnabled.add(pos);
+        }
+        else
+        {
+            this.lightEnabled.remove(pos);
+            this.initSkylightChunks.remove(pos);
+        }
+
+        ci.cancel();
+    }
+
+    @Shadow
+    protected abstract boolean isAboveMinimumHeight(int blockY);
+
+    @Unique
+    private static void spreadSourceSkylight(final LevelPropagatorAccessor lightProvider, final long src, final Direction dir)
+    {
+        final long dst = BlockPos.offset(src, dir);
+        lightProvider.invokeUpdateLevel(src, dst, lightProvider.callGetPropagatedLevel(src, dst, 0), true);
+    }
+
+    @Inject(
+        method = "updateLightArrays(Lnet/minecraft/world/chunk/light/ChunkLightProvider;ZZ)V",
+        at = @At(
+            value = "INVOKE",
+            opcode = Opcodes.INVOKESPECIAL,
+            shift = Shift.AFTER,
+            target = "Lnet/minecraft/world/chunk/light/LightStorage;updateLightArrays(Lnet/minecraft/world/chunk/light/ChunkLightProvider;ZZ)V"
+        )
+    )
+    private void initSkylight(final ChunkLightProvider<Data, ?> lightProvider, boolean doSkylight, boolean skipEdgeLightPropagation, final CallbackInfo ci)
+    {
+        for (long chunkPos : this.initSkylightChunks)
+        {
+            this.lightEnabled.add(chunkPos);
+            this.preInitSkylightChunks.remove(chunkPos);
+            this.updateLevel(Long.MAX_VALUE, ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), 16, ChunkSectionPos.getZ(chunkPos)), 2, false);
+
+            final LevelPropagatorAccessor levelPropagator = (LevelPropagatorAccessor) lightProvider;
+
+            for (int y = 16; this.isAboveMinimumHeight(y); --y)
+            {
+                final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), y, ChunkSectionPos.getZ(chunkPos));
+                final long pos = BlockPos.asLong(ChunkSectionPos.getWorldCoord(ChunkSectionPos.getX(sectionPos)), ChunkSectionPos.getWorldCoord(y), ChunkSectionPos.getWorldCoord(ChunkSectionPos.getZ(sectionPos)));
+
+                if (this.nonEmptySections.contains(sectionPos))
+                {
+                    for (int x = 0; x < 16; ++x)
+                        for (int z = 0; z < 16; ++z)
+                            spreadSourceSkylight(levelPropagator, BlockPos.add(pos, x, 16, z), Direction.DOWN);
+
+                    break;
+                }
+
+                if (this.hasLight(sectionPos))
+                {
+                    this.removeChunkData(lightProvider, sectionPos);
+
+                    if (this.field_15802.add(sectionPos))
+                        this.lightArrays.replaceWithCopy(sectionPos);
+
+                    Arrays.fill(this.getLightArray(sectionPos, true).asByteArray(), (byte) -1);
+                }
+
+                for (final Direction dir : Direction.Type.HORIZONTAL)
+                {
+                    if (!this.hasLight(ChunkSectionPos.offset(sectionPos, dir)))
+                        continue;
+
+                    final int ox = 15 * Math.max(dir.getOffsetX(), 0);
+                    final int oz = 15 * Math.max(dir.getOffsetZ(), 0);
+
+                    final int dx = Math.abs(dir.getOffsetZ());
+                    final int dz = Math.abs(dir.getOffsetX());
+
+                    for (int t = 0; t < 16; ++t)
+                        for (int dy = 0; dy < 16; ++dy)
+                            spreadSourceSkylight(levelPropagator, BlockPos.add(pos, ox + t * dx, dy, oz + t * dz), dir);
+                }
+            }
+        }
+
+        this.initSkylightChunks.clear();
     }
 }

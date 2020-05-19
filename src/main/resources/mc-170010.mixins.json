@@ -6,7 +6,8 @@
 		"ServerLightingProviderMixin",
 		"LightingProviderMixin",
 		"ChunkLightProviderMixin",
-		"LightStorageMixin"
+		"LightStorageMixin",
+		"LevelPropagatorAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1
