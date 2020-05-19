@@ -1,0 +1,10 @@
+{
+	"required": true,
+	"package": "ocd.mc170010.mixin",
+	"mixins": [
+		"SkyLightStorageMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
