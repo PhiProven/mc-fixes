@@ -4,7 +4,9 @@
 	"mixins": [
 		"ChunkStatusMixin",
 		"ServerLightingProviderMixin",
-		"ThreadedAnvilChunkStorageAccessor"
+		"ThreadedAnvilChunkStorageAccessor",
+		"ChunkMixin",
+		"ChunkSerializerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

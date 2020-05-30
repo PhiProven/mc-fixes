@@ -26,10 +26,11 @@ import net.minecraft.world.Heightmap.Type;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.ProtoChunk;
+import ocd.mc170012.IPersistentChunkStatus;
 import ocd.mc170012.ServerLightingProviderAccessor;
 
 @Mixin(ChunkStatus.class)
-public abstract class ChunkStatusMixin
+public abstract class ChunkStatusMixin implements IPersistentChunkStatus
 {
     @Shadow
     private static ChunkStatus register(String id, ChunkStatus previous, int taskMargin, EnumSet<Type> heightMapTypes, ChunkStatus.ChunkType chunkType, ChunkStatus.Task task, ChunkStatus.NoGenTask noGenTask)
@@ -105,5 +106,26 @@ public abstract class ChunkStatusMixin
         ret.add(1, PRE_LIGHT);
 
         DISTANCE_TO_TARGET_GENERATION_STATUS = ImmutableList.copyOf(ret);
+    }
+
+    @Override
+    public boolean isPersistent()
+    {
+        return (Object) this != PRE_LIGHT;
+    }
+
+    @Unique
+    private ChunkStatus persistentStatus;
+
+    @Shadow
+    public abstract ChunkStatus getPrevious();
+
+    @Override
+    public ChunkStatus getPersistentStatus()
+    {
+        if (this.persistentStatus != null)
+            return this.persistentStatus;
+
+        return this.persistentStatus = this.isPersistent() ? (ChunkStatus) (Object) this : ((IPersistentChunkStatus) this.getPrevious()).getPersistentStatus();
     }
 }
