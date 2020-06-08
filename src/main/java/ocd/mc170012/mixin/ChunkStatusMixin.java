@@ -49,12 +49,10 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
     @Unique
     private static CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> getPreLightFuture(final ChunkStatus chunkStatus, final ServerLightingProvider lightingProvider, final Chunk chunk)
     {
-        return ((ServerLightingProviderAccessor) lightingProvider).setupLightmaps(chunk).thenApply((chunk_) -> {
-            if (!chunk_.getStatus().isAtLeast(chunkStatus))
-                ((ProtoChunk)chunk_).setStatus(chunkStatus);
+        if (!chunk.getStatus().isAtLeast(chunkStatus))
+            ((ProtoChunk) chunk).setStatus(chunkStatus);
 
-            return Either.left(chunk_);
-        });
+        return ((ServerLightingProviderAccessor) lightingProvider).setupLightmaps(chunk).thenApply(Either::left);
     }
 
     @ModifyArg(
