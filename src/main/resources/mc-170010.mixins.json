@@ -7,7 +7,8 @@
 		"LightingProviderMixin",
 		"ChunkLightProviderMixin",
 		"LightStorageMixin",
-		"LevelPropagatorAccessor"
+		"LevelPropagatorAccessor",
+		"ChunkSkyLightProviderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
