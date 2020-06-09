@@ -8,7 +8,8 @@
 		"ChunkMixin",
 		"ChunkSerializerMixin",
 		"BlockLightStorageMixin",
-		"ChunkBlockLightProviderMixin"
+		"ChunkBlockLightProviderMixin",
+		"ProtoChunkMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
