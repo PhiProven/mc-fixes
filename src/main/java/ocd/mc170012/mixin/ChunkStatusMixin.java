@@ -72,7 +72,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
         PRE_LIGHT = register(
             "pre_light",
             preStatus,
-            1, // We want to be in the same state as the LIGHT stage was before, since ProtoChunk does not update lightmaps...
+            0,
             POST_CARVER_HEIGHTMAPS,
             ChunkStatus.ChunkType.PROTOCHUNK,
             (chunkStatus, serverWorld, chunkGenerator, structureManager, serverLightingProvider, function, list, chunk) -> getPreLightFuture(chunkStatus, serverLightingProvider, chunk),
@@ -100,8 +100,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
         final List<ChunkStatus> ret = new ArrayList<>(generationStages);
 
         // LIGHT stage requires chunks around it in PRE_LIGHT stage
-        // We want to be in the same state as the LIGHT stage was before, since ProtoChunk does not update lightmaps...
-        ret.add(1, PRE_LIGHT);
+        ret.set(1, PRE_LIGHT);
 
         DISTANCE_TO_TARGET_GENERATION_STATUS = ImmutableList.copyOf(ret);
     }
