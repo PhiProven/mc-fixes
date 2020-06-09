@@ -11,6 +11,9 @@
 		"ChunkBlockLightProviderMixin",
 		"ProtoChunkMixin"
 	],
+	"client" : [
+		"client.LevelLoadingScreenMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}
