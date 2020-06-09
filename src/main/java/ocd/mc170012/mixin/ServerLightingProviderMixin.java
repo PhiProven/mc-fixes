@@ -73,15 +73,15 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
         final ChunkPos chunkPos = chunk.getPos();
 
         this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
+            if (!chunk.isLightOn())
+                super.setLightEnabled(chunkPos, true);
+
             if (!excludeBlocks)
             {
                 chunk.getLightSourcesStream().forEach((blockPos) -> {
                     super.addLightSource(blockPos, chunk.getLuminance(blockPos));
                 });
             }
-
-            if (!chunk.isLightOn())
-                super.setLightEnabled(chunkPos, true);
         },
             () -> "lightChunk " + chunkPos + " " + excludeBlocks
         ));

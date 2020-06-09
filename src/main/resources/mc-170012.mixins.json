@@ -6,7 +6,9 @@
 		"ServerLightingProviderMixin",
 		"ThreadedAnvilChunkStorageAccessor",
 		"ChunkMixin",
-		"ChunkSerializerMixin"
+		"ChunkSerializerMixin",
+		"BlockLightStorageMixin",
+		"ChunkBlockLightProviderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
