@@ -57,9 +57,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
 
     @Inject(
         method = "method_20809(J)V",
-        at = @At(
-            value = "HEAD"
-        ),
+        at = @At("HEAD"),
         cancellable = true
     )
     private void disable_method_20809(final CallbackInfo ci)
@@ -69,9 +67,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
 
     @Inject(
         method = "method_20810(J)V",
-        at = @At(
-            value = "HEAD"
-        ),
+        at = @At("HEAD"),
         cancellable = true
     )
     private void disable_method_20810(final CallbackInfo ci)
@@ -111,9 +107,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
 
     @Inject(
         method = "setLightEnabled(JZ)V",
-        at = @At(
-            value = "HEAD"
-        ),
+        at = @At("HEAD"),
         cancellable = true
     )
     private void setLightEnabled(final long pos, final boolean enabled, final CallbackInfo ci)
@@ -135,7 +129,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
     }
 
     @Shadow
-    protected abstract boolean isAboveMinimumHeight(int blockY);
+    protected abstract boolean isAboveMinHeight(int blockY);
 
     @Unique
     private static void spreadSourceSkylight(final LevelPropagatorAccessor lightProvider, final long src, final Direction dir)
@@ -163,7 +157,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
 
             final LevelPropagatorAccessor levelPropagator = (LevelPropagatorAccessor) lightProvider;
 
-            for (int y = 16; this.isAboveMinimumHeight(y); --y)
+            for (int y = 16; this.isAboveMinHeight(y); --y)
             {
                 final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), y, ChunkSectionPos.getZ(chunkPos));
                 final long pos = BlockPos.asLong(ChunkSectionPos.getWorldCoord(ChunkSectionPos.getX(sectionPos)), ChunkSectionPos.getWorldCoord(y), ChunkSectionPos.getWorldCoord(ChunkSectionPos.getZ(sectionPos)));

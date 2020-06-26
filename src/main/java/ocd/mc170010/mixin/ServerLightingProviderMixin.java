@@ -27,9 +27,7 @@ public abstract class ServerLightingProviderMixin
     @Dynamic(mixin = ocd.mc170012.mixin.ServerLightingProviderMixin.class)
     @Inject(
         method = "setupLightmaps(Lnet/minecraft/class_2791;)Ljava/util/concurrent/CompletableFuture;",
-        at = @At(
-            value = "HEAD"
-        ),
+        at = @At("HEAD"),
         remap = false
     )
     private void forceloadLightmap(final Chunk chunk, final CallbackInfoReturnable<CompletableFuture<Chunk>> ci)
@@ -51,9 +49,7 @@ public abstract class ServerLightingProviderMixin
 
     @Inject(
         method = "updateChunkStatus(Lnet/minecraft/util/math/ChunkPos;)V",
-        at = @At(
-            value = "HEAD"
-        )
+        at = @At("HEAD")
     )
     private void unloadForcedLightmap(final ChunkPos pos, final CallbackInfo ci)
     {
