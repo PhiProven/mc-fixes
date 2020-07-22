@@ -105,6 +105,9 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
     @Final
     private LongSet lightEnabled;
 
+    @Shadow
+    protected abstract void checkForUpdates();
+
     @Inject(
         method = "setLightEnabled(JZ)V",
         at = @At("HEAD"),
@@ -115,7 +118,10 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
         if (enabled)
         {
             if (preInitSkylightChunks.contains(pos))
+            {
                 initSkylightChunks.add(pos);
+                this.checkForUpdates();
+            }
             else
                 this.lightEnabled.add(pos);
         }
@@ -123,6 +129,7 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
         {
             this.lightEnabled.remove(pos);
             this.initSkylightChunks.remove(pos);
+            this.checkForUpdates();
         }
 
         ci.cancel();
@@ -200,5 +207,21 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
         }
 
         this.initSkylightChunks.clear();
+    }
+
+    @Shadow
+    private volatile boolean hasSkyLightUpdates;
+
+    @Redirect(
+        method = "checkForUpdates()V",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/world/chunk/light/SkyLightStorage;hasSkyLightUpdates:Z",
+            opcode = Opcodes.PUTFIELD
+        )
+    )
+    private void checkInitSkylight(final SkyLightStorage lightStorage, final boolean hasSkyLightUpdates)
+    {
+        this.hasSkyLightUpdates = hasSkyLightUpdates || !this.initSkylightChunks.isEmpty();
     }
 }
