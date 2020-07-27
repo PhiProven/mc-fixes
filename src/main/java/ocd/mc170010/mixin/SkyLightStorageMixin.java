@@ -161,35 +161,26 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
         {
             final long chunkPos = it.nextLong();
 
+            final LevelPropagatorAccessor levelPropagator = (LevelPropagatorAccessor) lightProvider;
+            final int minY = this.fillSkylightColumn(lightProvider, chunkPos);
+
             this.lightEnabled.add(chunkPos);
             this.preInitSkylightChunks.remove(chunkPos);
             this.updateLevel(Long.MAX_VALUE, ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), 16, ChunkSectionPos.getZ(chunkPos)), 2, false);
 
-            final LevelPropagatorAccessor levelPropagator = (LevelPropagatorAccessor) lightProvider;
+            if (this.hasLight(ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), minY, ChunkSectionPos.getZ(chunkPos))))
+            {
+                final long blockPos = BlockPos.asLong(ChunkSectionPos.getWorldCoord(ChunkSectionPos.getX(chunkPos)), ChunkSectionPos.getWorldCoord(minY), ChunkSectionPos.getWorldCoord(ChunkSectionPos.getZ(chunkPos)));
 
-            for (int y = 16; this.isAboveMinHeight(y); --y)
+                for (int x = 0; x < 16; ++x)
+                    for (int z = 0; z < 16; ++z)
+                        spreadSourceSkylight(levelPropagator, BlockPos.add(blockPos, x, 16, z), Direction.DOWN);
+            }
+
+            for (int y = 16; y > minY; --y)
             {
                 final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), y, ChunkSectionPos.getZ(chunkPos));
-                final long pos = BlockPos.asLong(ChunkSectionPos.getWorldCoord(ChunkSectionPos.getX(sectionPos)), ChunkSectionPos.getWorldCoord(y), ChunkSectionPos.getWorldCoord(ChunkSectionPos.getZ(sectionPos)));
-
-                if (this.nonEmptySections.contains(sectionPos))
-                {
-                    for (int x = 0; x < 16; ++x)
-                        for (int z = 0; z < 16; ++z)
-                            spreadSourceSkylight(levelPropagator, BlockPos.add(pos, x, 16, z), Direction.DOWN);
-
-                    break;
-                }
-
-                if (this.hasLight(sectionPos))
-                {
-                    this.removeChunkData(lightProvider, sectionPos);
-
-                    if (this.field_15802.add(sectionPos))
-                        this.lightArrays.replaceWithCopy(sectionPos);
-
-                    Arrays.fill(this.getLightArray(sectionPos, true).asByteArray(), (byte) -1);
-                }
+                final long blockPos = BlockPos.asLong(ChunkSectionPos.getWorldCoord(ChunkSectionPos.getX(sectionPos)), ChunkSectionPos.getWorldCoord(y), ChunkSectionPos.getWorldCoord(ChunkSectionPos.getZ(sectionPos)));
 
                 for (final Direction dir : Direction.Type.HORIZONTAL)
                 {
@@ -204,12 +195,37 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
 
                     for (int t = 0; t < 16; ++t)
                         for (int dy = 0; dy < 16; ++dy)
-                            spreadSourceSkylight(levelPropagator, BlockPos.add(pos, ox + t * dx, dy, oz + t * dz), dir);
+                            spreadSourceSkylight(levelPropagator, BlockPos.add(blockPos, ox + t * dx, dy, oz + t * dz), dir);
                 }
             }
         }
 
         this.initSkylightChunks.clear();
+    }
+
+    private int fillSkylightColumn(final ChunkLightProvider<Data, ?> lightProvider, final long chunkPos)
+    {
+        int y = 16;
+
+        for (; this.isAboveMinHeight(y); --y)
+        {
+            final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), y, ChunkSectionPos.getZ(chunkPos));
+
+            if (this.nonEmptySections.contains(sectionPos))
+                break;
+
+            this.removeChunkData(lightProvider, sectionPos);
+
+            if (this.hasLight(sectionPos))
+            {
+                if (this.field_15802.add(sectionPos))
+                    this.lightArrays.replaceWithCopy(sectionPos);
+
+                Arrays.fill(this.getLightArray(sectionPos, true).asByteArray(), (byte) -1);
+            }
+        }
+
+        return y;
     }
 
     @Shadow
