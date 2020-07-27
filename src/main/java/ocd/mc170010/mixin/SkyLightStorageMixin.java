@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.util.math.BlockPos;
@@ -156,8 +157,10 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
     )
     private void initSkylight(final ChunkLightProvider<Data, ?> lightProvider, boolean doSkylight, boolean skipEdgeLightPropagation, final CallbackInfo ci)
     {
-        for (long chunkPos : this.initSkylightChunks)
+        for (final LongIterator it = this.initSkylightChunks.iterator(); it.hasNext(); )
         {
+            final long chunkPos = it.nextLong();
+
             this.lightEnabled.add(chunkPos);
             this.preInitSkylightChunks.remove(chunkPos);
             this.updateLevel(Long.MAX_VALUE, ChunkSectionPos.asLong(ChunkSectionPos.getX(chunkPos), 16, ChunkSectionPos.getZ(chunkPos)), 2, false);
