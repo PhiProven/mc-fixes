@@ -83,11 +83,11 @@ configurations {
 	modOutConf(runtimeElements)
 
 	modApiElements {
-		extendsFrom modApi, minecraft, minecraftLibraries
+		extendsFrom modApi
 	}
 
 	modRuntimeElements {
-		extendsFrom modApi, modImplementation, modCompile, modRuntime, minecraft, minecraftLibraries
+		extendsFrom modApi, modImplementation, modCompile, modRuntime
 	}
 
 	copyDependencies(implementation, modRuntimeElements)
