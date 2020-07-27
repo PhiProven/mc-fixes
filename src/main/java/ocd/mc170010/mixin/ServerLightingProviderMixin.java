@@ -18,7 +18,7 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.chunk.Chunk;
 import ocd.mc170010.InitialLightingAccessor;
 
-@Mixin(ServerLightingProvider.class)
+@Mixin(value = ServerLightingProvider.class, priority = 1001)
 public abstract class ServerLightingProviderMixin
 {
     @Shadow
