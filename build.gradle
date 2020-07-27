@@ -16,14 +16,10 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation('ocd:mc-fix_mc-170012') {
-		transitive = false
-	}
+	modImplementation 'ocd:mc-fix_mc-170012'
 	include 'ocd:mc-fix_mc-170012'
 	
-	modRuntime('ocd:mc-fix_mc-169913') {
-		transitive = false
-	}
+	modRuntime 'ocd:mc-fix_mc-169913'
 	include 'ocd:mc-fix_mc-169913'
 }
 
