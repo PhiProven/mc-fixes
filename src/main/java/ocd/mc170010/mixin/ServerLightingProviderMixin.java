@@ -49,7 +49,7 @@ public abstract class ServerLightingProviderMixin
 
     @Inject(
         method = "updateChunkStatus(Lnet/minecraft/util/math/ChunkPos;)V",
-        at = @At("HEAD")
+        at = @At("TAIL")
     )
     private void unloadForcedLightmap(final ChunkPos pos, final CallbackInfo ci)
     {
