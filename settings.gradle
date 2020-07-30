@@ -20,3 +20,9 @@ includeBuild('dependencies/mc-fix_mc-169913') {
         substitute module('ocd:mc-fix_mc-169913') with project(':')
     }
 }
+
+includeBuild('dependencies/mc-fix_mc-196542') {
+    dependencySubstitution {
+        substitute module('ocd:mc-fix_mc-196542') with project(':')
+    }
+}
