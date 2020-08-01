@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "mc-fix_mc-196725",
+  "version": "${version}",
+
+  "name": "MC-Fix MC-196725",
+  "description": "Fixes MC-196725",
+  "authors": [
+    "PhiPro"
+  ],
+  "contact": {
+    "sources": "https://github.com/PhiPro95/mc-fixes/commits/mc-196725"
+  },
+
+  "license": "MIT",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+    ]
+  },
+  "mixins": [
+  ],
+  "depends": {
+    "fabricloader": ">=0.8.0",
+    "minecraft": ">=1.14",
+    "mc-fix_mc-170012": "*",
+    "mc-fix_mc-170010": ">=1.3.0",
+    "mc-fix_mc-196542": "*"
+  }
+}

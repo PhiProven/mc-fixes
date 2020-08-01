@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        jcenter()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        gradlePluginPortal()
+    }
+}
+
+includeBuild('dependencies/mc-fix_mc-170010') {
+    dependencySubstitution {
+        substitute module('ocd:mc-fix_mc-170010') with project(':')
+    }
+}
