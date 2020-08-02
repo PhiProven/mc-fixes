@@ -26,6 +26,10 @@ dependencies {
 	include 'ocd:mc-fix_mc-196542'
 }
 
+minecraft {
+	accessWidener = file("src/main/resources/mc-196725.accesswidener")
+}
+
 processResources {
 	inputs.property "version", project.version
 
