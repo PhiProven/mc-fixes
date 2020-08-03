@@ -8,21 +8,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
-includeBuild('dependencies/mc-fix_mc-170012') {
-    dependencySubstitution {
-        substitute module('ocd:mc-fix_mc-170012') with project(':')
-    }
-}
-
-includeBuild('dependencies/mc-fix_mc-169913') {
-    dependencySubstitution {
-        substitute module('ocd:mc-fix_mc-169913') with project(':')
-    }
-}
-
-includeBuild('dependencies/mc-fix_mc-196542') {
-    dependencySubstitution {
-        substitute module('ocd:mc-fix_mc-196542') with project(':')
-    }
-}
