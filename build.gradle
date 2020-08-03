@@ -17,13 +17,8 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
 	modImplementation 'ocd:mc-fix_mc-170012'
-	include 'ocd:mc-fix_mc-170012'
-
 	modImplementation 'ocd:mc-fix_mc-170010'
-	include 'ocd:mc-fix_mc-170010'
-
 	modRuntime 'ocd:mc-fix_mc-196542'
-	include 'ocd:mc-fix_mc-196542'
 }
 
 minecraft {
