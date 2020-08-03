@@ -52,7 +52,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
         if (!chunk.getStatus().isAtLeast(chunkStatus))
             ((ProtoChunk) chunk).setStatus(chunkStatus);
 
-        return ((ServerLightingProviderAccessor) lightingProvider).setupLightmaps(chunk).thenApply(Either::left);
+        return ((ServerLightingProviderAccessor) lightingProvider).enqueueSetupLightmaps(chunk).thenApply(Either::left);
     }
 
     @ModifyArg(

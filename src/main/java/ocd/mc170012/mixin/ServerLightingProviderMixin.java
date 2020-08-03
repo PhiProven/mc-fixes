@@ -30,24 +30,13 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
     protected abstract void enqueue(int x, int z, ServerLightingProvider.Stage stage, Runnable task);
 
     @Override
-    public CompletableFuture<Chunk> setupLightmaps(final Chunk chunk)
+    public CompletableFuture<Chunk> enqueueSetupLightmaps(final Chunk chunk)
     {
         final ChunkPos chunkPos = chunk.getPos();
 
         // This evaluates the non-empty subchunks concurrently on the lighting thread...
-        this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
-            ChunkSection[] chunkSections = chunk.getSectionArray();
-
-            for (int i = 0; i < chunkSections.length; ++i)
-            {
-                ChunkSection chunkSection = chunkSections[i];
-                if (!ChunkSection.isEmpty(chunkSection))
-                    super.updateSectionStatus(ChunkSectionPos.from(chunkPos, i), false);
-            }
-
-            if (chunk.isLightOn())
-                super.setLightEnabled(chunkPos, true);
-        },
+        this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(
+            () -> this.setupLightmaps(chunk),
             () -> "setupLightmaps " + chunkPos)
         );
 
@@ -57,6 +46,22 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
         },
             (runnable) -> this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.POST_UPDATE, runnable)
         );
+    }
+
+    private void setupLightmaps(final Chunk chunk)
+    {
+        final ChunkPos chunkPos = chunk.getPos();
+        final ChunkSection[] chunkSections = chunk.getSectionArray();
+
+        for (int i = 0; i < chunkSections.length; ++i)
+        {
+            ChunkSection chunkSection = chunkSections[i];
+            if (!ChunkSection.isEmpty(chunkSection))
+                super.updateSectionStatus(ChunkSectionPos.from(chunkPos, i), false);
+        }
+
+        if (chunk.isLightOn())
+            super.setLightEnabled(chunkPos, true);
     }
 
     @Shadow

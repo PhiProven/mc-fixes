@@ -6,5 +6,5 @@ import net.minecraft.world.chunk.Chunk;
 
 public interface ServerLightingProviderAccessor
 {
-    CompletableFuture<Chunk> setupLightmaps(Chunk chunk);
+    CompletableFuture<Chunk> enqueueSetupLightmaps(Chunk chunk);
 }
