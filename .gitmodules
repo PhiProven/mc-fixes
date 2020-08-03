@@ -1,0 +1,21 @@
+[submodule "mc-fix_mc-197524"]
+	path = dependencies/mc-fix_mc-197524
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-197524
+[submodule "mc-fix_mc-196542"]
+	path = dependencies/mc-fix_mc-196542
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-196542
+[submodule "mc-fix_mc-170012"]
+	path = dependencies/mc-fix_mc-170012
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-170012
+[submodule "mc-fix_mc-170010"]
+	path = dependencies/mc-fix_mc-170010
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-170010
+[submodule "mc-fix_mc-196725"]
+	path = dependencies/mc-fix_mc-196725
+	url = https://github.com/PhiPro95/mc-fixes.git
+	branch = mc-196725_vanilla-compat
+
