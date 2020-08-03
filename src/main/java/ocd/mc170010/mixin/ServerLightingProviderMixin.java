@@ -1,6 +1,5 @@
 package ocd.mc170010.mixin;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.IntSupplier;
 
 import org.spongepowered.asm.mixin.Dynamic;
@@ -9,7 +8,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.server.world.ServerLightingProvider;
 import net.minecraft.util.Util;
@@ -21,27 +19,19 @@ import ocd.mc170010.InitialLightingAccessor;
 @Mixin(value = ServerLightingProvider.class, priority = 1001)
 public abstract class ServerLightingProviderMixin
 {
-    @Shadow
-    protected abstract void enqueue(int x, int z, ServerLightingProvider.Stage stage, Runnable task);
-
     @Dynamic(mixin = ocd.mc170012.mixin.ServerLightingProviderMixin.class)
     @Inject(
-        method = "setupLightmaps(Lnet/minecraft/class_2791;)Ljava/util/concurrent/CompletableFuture;",
+        method = "setupLightmaps(Lnet/minecraft/class_2791;)V",
         at = @At("HEAD"),
         remap = false
     )
-    private void forceloadLightmap(final Chunk chunk, final CallbackInfoReturnable<CompletableFuture<Chunk>> ci)
+    private void forceloadLightmap(final Chunk chunk, final CallbackInfo ci)
     {
         if (chunk.isLightOn())
             return;
 
         final ChunkPos pos = chunk.getPos();
-
-        this.enqueue(pos.x, pos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
-            ((InitialLightingAccessor) this).forceloadLightmap(ChunkSectionPos.withZeroZ(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
-        },
-            () -> "preInitLighting " + pos
-        ));
+        ((InitialLightingAccessor) this).forceloadLightmap(ChunkSectionPos.withZeroZ(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
     }
 
     @Shadow
