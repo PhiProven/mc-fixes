@@ -21,6 +21,7 @@
     ]
   },
   "mixins": [
+    "mc-197524.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.8.0",
