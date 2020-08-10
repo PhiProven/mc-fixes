@@ -228,7 +228,17 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
     public void disableLightUpdates(final long chunkPos)
     {
         if (this.markedEnabledChunks.remove(chunkPos) || !this.enabledChunks.contains(chunkPos))
+        {
+            for (int i = -1; i < 17; ++i)
+            {
+                final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), i, ChunkSectionPos.unpackZ(chunkPos));
+
+                if (this.storage.removeChunk(sectionPos) != null)
+                    this.dirtySections.add(sectionPos);
+            }
+
             this.setColumnEnabled(chunkPos, false);
+        }
         else
         {
             this.markedDisabledChunks.add(chunkPos);
@@ -436,6 +446,35 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
         this.storage.put(sectionPos, lightmap);
         this.dirtySections.add(sectionPos);
         return null;
+    }
+
+    @Redirect(
+        method = {
+            "method_15532(JLnet/minecraft/class_2804;)V", // 1.14 - 1.15
+            "enqueueSectionData(JLnet/minecraft/world/chunk/ChunkNibbleArray;Z)V" // 1.16
+        },
+        slice = @Slice(
+            from = @At(
+                value = "FIELD",
+                target = "Lnet/minecraft/world/chunk/light/LightStorage;queuedSections:Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;",
+                opcode = Opcodes.GETFIELD,
+                ordinal = 1
+            )
+        ),
+        at = @At(
+            value = "INVOKE",
+            target = "Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;remove(J)Ljava/lang/Object;",
+            ordinal = 0,
+            remap = false
+        )
+    )
+    private Object removeLightmapForDisabledChunkDirectly(final Long2ObjectMap<?> queuedSections, final long sectionPos)
+    {
+        if (this.enabledChunks.contains(ChunkSectionPos.withZeroY(sectionPos)))
+            return this.queuedSections.remove(sectionPos);
+
+        this.dirtySections.add(sectionPos);
+        return this.storage.removeChunk(sectionPos);
     }
 
     // Queued lightmaps are only added to the world via updateLightmaps()
