@@ -57,11 +57,11 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
         {
             ChunkSection chunkSection = chunkSections[i];
             if (!ChunkSection.isEmpty(chunkSection))
-                super.updateSectionStatus(ChunkSectionPos.from(chunkPos, i), false);
+                super.setSectionStatus(ChunkSectionPos.from(chunkPos, i), false);
         }
 
         if (chunk.isLightOn())
-            super.setLightEnabled(chunkPos, true);
+            super.setColumnEnabled(chunkPos, true);
     }
 
     @Shadow
@@ -79,7 +79,7 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
 
         this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
             if (!chunk.isLightOn())
-                super.setLightEnabled(chunkPos, true);
+                super.setColumnEnabled(chunkPos, true);
 
             if (!excludeBlocks)
             {

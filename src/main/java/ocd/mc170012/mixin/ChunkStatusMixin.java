@@ -33,7 +33,7 @@ import ocd.mc170012.ServerLightingProviderAccessor;
 public abstract class ChunkStatusMixin implements IPersistentChunkStatus
 {
     @Shadow
-    private static ChunkStatus register(String id, ChunkStatus previous, int taskMargin, EnumSet<Type> heightMapTypes, ChunkStatus.ChunkType chunkType, ChunkStatus.Task task, ChunkStatus.NoGenTask noGenTask)
+    private static ChunkStatus register(String id, ChunkStatus previous, int taskMargin, EnumSet<Type> heightMapTypes, ChunkStatus.ChunkType chunkType, ChunkStatus.GenerationTask task, ChunkStatus.LoadTask noGenTask)
     {
         return null;
     }
@@ -62,7 +62,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
         ),
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/chunk/ChunkStatus;register(Ljava/lang/String;Lnet/minecraft/world/chunk/ChunkStatus;ILjava/util/EnumSet;Lnet/minecraft/world/chunk/ChunkStatus$ChunkType;Lnet/minecraft/world/chunk/ChunkStatus$Task;Lnet/minecraft/world/chunk/ChunkStatus$NoGenTask;)Lnet/minecraft/world/chunk/ChunkStatus;",
+            target = "Lnet/minecraft/world/chunk/ChunkStatus;register(Ljava/lang/String;Lnet/minecraft/world/chunk/ChunkStatus;ILjava/util/EnumSet;Lnet/minecraft/world/chunk/ChunkStatus$ChunkType;Lnet/minecraft/world/chunk/ChunkStatus$GenerationTask;Lnet/minecraft/world/chunk/ChunkStatus$LoadTask;)Lnet/minecraft/world/chunk/ChunkStatus;",
             ordinal = 0
         ),
         index = 1
@@ -74,7 +74,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
             preStatus,
             0,
             POST_CARVER_HEIGHTMAPS,
-            ChunkStatus.ChunkType.PROTOCHUNK,
+            ChunkStatus.ChunkType.field_12808,
             (chunkStatus, serverWorld, chunkGenerator, structureManager, serverLightingProvider, function, list, chunk) -> getPreLightFuture(chunkStatus, serverLightingProvider, chunk),
             (chunkStatus, serverWorld, structureManager, serverLightingProvider, function, chunk) -> getPreLightFuture(chunkStatus, serverLightingProvider, chunk)
         );
@@ -85,14 +85,14 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
     @Shadow
     @Final
     @Mutable
-    private static List<ChunkStatus> DISTANCE_TO_TARGET_GENERATION_STATUS;
+    private static List<ChunkStatus> DISTANCE_TO_STATUS;
 
     @Redirect(
         method = "<clinit>",
         at = @At(
             value = "FIELD",
             opcode = Opcodes.PUTSTATIC,
-            target = "Lnet/minecraft/world/chunk/ChunkStatus;DISTANCE_TO_TARGET_GENERATION_STATUS:Ljava/util/List;"
+            target = "Lnet/minecraft/world/chunk/ChunkStatus;DISTANCE_TO_STATUS:Ljava/util/List;"
         )
     )
     private static void injectGenerationStage(final List<ChunkStatus> generationStages)
@@ -102,7 +102,7 @@ public abstract class ChunkStatusMixin implements IPersistentChunkStatus
         // LIGHT stage requires chunks around it in PRE_LIGHT stage
         ret.set(1, PRE_LIGHT);
 
-        DISTANCE_TO_TARGET_GENERATION_STATUS = ImmutableList.copyOf(ret);
+        DISTANCE_TO_STATUS = ImmutableList.copyOf(ret);
     }
 
     @Override

@@ -58,7 +58,7 @@ public abstract class ProtoChunkMixin
     private void addLightmap(final BlockPos pos, final BlockState state, final boolean moved, final CallbackInfoReturnable<BlockState> ci)
     {
         if (this.getStatus().isAtLeast(PRE_LIGHT) && ChunkSection.isEmpty(this.tmpSection))
-            this.getLightingProvider().updateSectionStatus(pos, false);
+            this.getLightingProvider().setSectionStatus(pos, false);
     }
 
     @Inject(
@@ -73,7 +73,7 @@ public abstract class ProtoChunkMixin
             return;
 
         if (this.getStatus().isAtLeast(PRE_LIGHT) && ChunkSection.isEmpty(this.tmpSection))
-            this.getLightingProvider().updateSectionStatus(pos, true);
+            this.getLightingProvider().setSectionStatus(pos, true);
 
         this.tmpSection = null;
     }

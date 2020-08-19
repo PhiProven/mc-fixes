@@ -24,7 +24,7 @@ public abstract class BlockLightStorageMixin extends LightStorage<BlockLightStor
     private final LongSet lightEnabled = new LongOpenHashSet();
 
     @Override
-    protected void setLightEnabled(final long chunkPos, final boolean enable)
+    protected void setColumnEnabled(final long chunkPos, final boolean enable)
     {
         if (enable)
             this.lightEnabled.add(chunkPos);

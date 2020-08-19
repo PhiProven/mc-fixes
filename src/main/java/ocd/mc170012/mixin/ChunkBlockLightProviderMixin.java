@@ -29,7 +29,7 @@ public abstract class ChunkBlockLightProviderMixin extends ChunkLightProvider<Da
     )
     private void disableBlocklightSources(final long blockPos, final CallbackInfoReturnable<Integer> ci)
     {
-        if (!((BlockLightStorageAccessor) this.lightStorage).isLightEnabled(ChunkSectionPos.withZeroZ(ChunkSectionPos.fromGlobalPos(blockPos))))
+        if (!((BlockLightStorageAccessor) this.lightStorage).isLightEnabled(ChunkSectionPos.withZeroY(ChunkSectionPos.fromBlockPos(blockPos))))
             ci.setReturnValue(0);
     }
 }
