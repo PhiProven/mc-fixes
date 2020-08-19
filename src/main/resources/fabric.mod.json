@@ -9,17 +9,13 @@
     "PhiPro"
   ],
   "contact": {
+    "issues": "https://github.com/PhiPro95/mc-fixes/issues",
     "sources": "https://github.com/PhiPro95/mc-fixes/commits/mc-170010"
   },
 
   "license": "MIT",
-  "icon": "assets/modid/icon.png",
 
   "environment": "*",
-  "entrypoints": {
-    "main": [
-    ]
-  },
   "mixins": [
     "mc-170010.mixins.json"
   ],
