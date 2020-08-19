@@ -15,9 +15,21 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation 'ocd:mc-fix_mc-170012'
-	modRuntime 'ocd:mc-fix_mc-169913'
-	modRuntime 'ocd:mc-fix_mc-196542'
+	modImplementation('ocd:mc-fix_mc-170012') {
+		version {
+			strictly '[2.0, 3.0)'
+		}
+	}
+	modRuntime('ocd:mc-fix_mc-169913') {
+		version {
+			strictly '[1.0, 2.0)'
+		}
+	}
+	modRuntime('ocd:mc-fix_mc-196542') {
+		version {
+			strictly '[1.0, 2.0)'
+		}
+	}
 }
 
 minecraft {
