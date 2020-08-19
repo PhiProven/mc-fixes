@@ -31,7 +31,7 @@ public abstract class ServerLightingProviderMixin
             return;
 
         final ChunkPos pos = chunk.getPos();
-        ((InitialLightingAccessor) this).forceloadLightmap(ChunkSectionPos.withZeroZ(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
+        ((InitialLightingAccessor) this).forceloadLightmap(ChunkSectionPos.withZeroY(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
     }
 
     @Shadow
@@ -44,7 +44,7 @@ public abstract class ServerLightingProviderMixin
     private void unloadForcedLightmap(final ChunkPos pos, final CallbackInfo ci)
     {
         this.enqueue(pos.x, pos.z, () -> 0, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
-            ((InitialLightingAccessor) this).unloadForcedLightmap(ChunkSectionPos.withZeroZ(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
+            ((InitialLightingAccessor) this).unloadForcedLightmap(ChunkSectionPos.withZeroY(ChunkSectionPos.asLong(pos.x, 0, pos.z)));
         },
             () -> "unloadLightmaps " + pos
         ));
