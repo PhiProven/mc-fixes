@@ -56,7 +56,7 @@ public abstract class WorldMixin implements WorldAccess
     private void addLightmap(final CallbackInfoReturnable<Boolean> ci)
     {
         if (ChunkSection.isEmpty(this.tmpChunk.getSectionArray()[this.tmpPos.getY() >> 4]))
-            this.getChunkManager().getLightingProvider().updateSectionStatus(this.tmpPos, false);
+            this.getChunkManager().getLightingProvider().setSectionStatus(this.tmpPos, false);
     }
 
     @Inject(
@@ -78,7 +78,7 @@ public abstract class WorldMixin implements WorldAccess
             return;
 
         if (ChunkSection.isEmpty(this.tmpChunk.getSectionArray()[this.tmpPos.getY() >> 4]))
-            this.getChunkManager().getLightingProvider().updateSectionStatus(this.tmpPos, true);
+            this.getChunkManager().getLightingProvider().setSectionStatus(this.tmpPos, true);
 
         this.tmpChunk = null;
         this.tmpPos = null;

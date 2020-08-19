@@ -31,13 +31,13 @@ public abstract class ServerLightingProviderMixin extends LightingProvider
      * @reason Re-implement
      */
     @Overwrite
-    public void updateSectionStatus(final ChunkSectionPos pos, final boolean empty)
+    public void setSectionStatus(final ChunkSectionPos pos, final boolean empty)
     {
         if (empty)
         {
             // Schedule after light updates have been carried out
             this.enqueue(pos.getSectionX(), pos.getSectionZ(), ServerLightingProvider.Stage.POST_UPDATE, Util.debugRunnable(() -> {
-                super.updateSectionStatus(pos, true);
+                super.setSectionStatus(pos, true);
             },
                 () -> "updateSectionStatus " + pos + " " + true
             ));
@@ -46,14 +46,14 @@ public abstract class ServerLightingProviderMixin extends LightingProvider
         {
             // Schedule before light updates are carried out
             this.enqueue(pos.getSectionX(), pos.getSectionZ(), () -> 0, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
-                super.updateSectionStatus(pos, false);
+                super.setSectionStatus(pos, false);
             },
                 () -> "updateSectionStatus " + pos + " " + false
             ));
 
             // Schedule another version in POST_UPDATE to achieve reliable final state
             this.enqueue(pos.getSectionX(), pos.getSectionZ(), ServerLightingProvider.Stage.POST_UPDATE, Util.debugRunnable(() -> {
-                super.updateSectionStatus(pos, false);
+                super.setSectionStatus(pos, false);
             },
                 () -> "updateSectionStatus " + pos + " " + false
             ));
