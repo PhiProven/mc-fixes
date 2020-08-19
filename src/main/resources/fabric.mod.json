@@ -22,8 +22,8 @@
   "depends": {
     "fabricloader": ">=0.8.0",
     "minecraft": ">=1.14",
-    "mc-fix_mc-170012": ">=2.0.0",
-    "mc-fix_mc-170010": ">=1.3.0",
-    "mc-fix_mc-196542": "*"
+    "mc-fix_mc-170012": "2.x",
+    "mc-fix_mc-170010": "^1.3",
+    "mc-fix_mc-196542": "1.x"
   }
 }
