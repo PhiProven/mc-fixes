@@ -409,11 +409,15 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
     )
     private void initializeLightmap(final ChunkToNibbleArrayMap<?> lightmapArray, final long sectionPos, final ChunkNibbleArray lightmap)
     {
-        this.beforeLightmapChange(sectionPos, this.getLightSection(sectionPos, true), lightmap);
+        final ChunkNibbleArray oldLightmap = this.getLightSection(sectionPos, true);
+
+        this.beforeLightmapChange(sectionPos, oldLightmap, lightmap);
         this.storage.put(sectionPos, lightmap);
         this.storage.clearCache();
 
-        this.onLoadSection(sectionPos);
+        if (oldLightmap == null)
+            this.onLoadSection(sectionPos);
+
         this.setLightmapComplexity(sectionPos, this.getInitialLightmapComplexity(sectionPos, lightmap));
     }
 
