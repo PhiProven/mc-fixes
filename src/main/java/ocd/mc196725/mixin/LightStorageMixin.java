@@ -332,12 +332,12 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
 
                 this.queuedSections.remove(sectionPos);
 
-                if (this.hasLightmap(sectionPos))
+                if (this.storage.removeChunk(sectionPos) != null)
                 {
                     sections |= 1 << (i + 1);
 
-                    this.storage.removeChunk(sectionPos);
                     this.lightmapComplexities.remove(sectionPos);
+                    this.trivialLightmaps.remove(sectionPos);
                     this.dirtySections.add(sectionPos);
                 }
             }
