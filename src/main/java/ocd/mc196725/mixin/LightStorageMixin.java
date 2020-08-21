@@ -25,13 +25,15 @@ import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkToNibbleArrayMap;
 import net.minecraft.world.chunk.light.ChunkLightProvider;
 import net.minecraft.world.chunk.light.LightStorage;
+import ocd.mc196725.EmptyChunkNibbleArray;
+import ocd.mc196725.IReadonly;
 import ocd.mc196725.LightStorageAccessor;
 
 @Mixin(LightStorage.class)
 public abstract class LightStorageMixin implements LightStorageAccessor
 {
     @Unique
-    private final LongSet enabledChunks = new LongOpenHashSet();
+    protected final LongSet enabledChunks = new LongOpenHashSet();
     @Unique
     protected final Long2IntMap lightmapComplexities = setDefaultReturnValue(new Long2IntOpenHashMap(), -1);
 
@@ -72,9 +74,19 @@ public abstract class LightStorageMixin implements LightStorageAccessor
     protected abstract void onUnloadSection(final long sectionPos);
 
     @Unique
-    protected ChunkNibbleArray addLightmap(final long sectionPos)
+    protected ChunkNibbleArray getOrAddLightmap(final long sectionPos)
     {
-        final ChunkNibbleArray lightmap = this.createSection(sectionPos);
+        ChunkNibbleArray lightmap = this.getLightSection(sectionPos, true);
+
+        if (lightmap == null)
+            lightmap = this.createSection(sectionPos);
+        else
+        {
+            if (((IReadonly) lightmap).isReadonly())
+                lightmap = lightmap.copy();
+            else
+                return lightmap;
+        }
 
         this.storage.put(sectionPos, lightmap);
         this.storage.clearCache();
@@ -84,14 +96,6 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         this.setLightmapComplexity(sectionPos, 0);
 
         return lightmap;
-    }
-
-    @Unique
-    protected ChunkNibbleArray getOrAddLightmap(final long sectionPos)
-    {
-        final ChunkNibbleArray lightmap = this.getLightSection(sectionPos, true);
-
-        return lightmap == null ? this.addLightmap(sectionPos) : lightmap;
     }
 
     @Unique
@@ -146,9 +150,16 @@ public abstract class LightStorageMixin implements LightStorageAccessor
     protected abstract ChunkNibbleArray getLightSection(final long sectionPos, final boolean cached);
 
     @Unique
+    protected ChunkNibbleArray getLightmap(final long sectionPos)
+    {
+        final ChunkNibbleArray lightmap = this.getLightSection(sectionPos, true);
+        return lightmap == null || ((IReadonly) lightmap).isReadonly() ? null : lightmap;
+    }
+
+    @Unique
     protected boolean hasLightmap(final long sectionPos)
     {
-        return this.getLightSection(sectionPos, true) != null;
+        return this.getLightmap(sectionPos) != null;
     }
 
     @Inject(
@@ -296,10 +307,31 @@ public abstract class LightStorageMixin implements LightStorageAccessor
                     this.setLightmapComplexity(sectionPos, this.getInitialLightmapComplexity(sectionPos, this.getLightSection(sectionPos, true)));
             }
 
+            // Add trivial lightmaps for vanilla compatibility
+
+            for (int i = -1; i < 17; ++i)
+            {
+                final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), i, ChunkSectionPos.unpackZ(chunkPos));
+
+                if (this.nonOptimizableSections.contains(sectionPos) && this.getLightSection(sectionPos, true) == null)
+                {
+                    this.storage.put(sectionPos, this.createTrivialVanillaLightmap(sectionPos));
+                    this.dirtySections.add(sectionPos);
+                }
+            }
+
             this.enabledChunks.add(chunkPos);
         }
 
+        this.storage.clearCache();
+
         this.markedEnabledChunks.clear();
+    }
+
+    @Unique
+    protected ChunkNibbleArray createTrivialVanillaLightmap(final long sectionPos)
+    {
+        return new EmptyChunkNibbleArray();
     }
 
     @Shadow
@@ -364,10 +396,12 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         if (this.storage.removeChunk(sectionPos) == null)
             return false;
 
-        this.lightmapComplexities.remove(sectionPos);
-        this.trivialLightmaps.remove(sectionPos);
         this.dirtySections.add(sectionPos);
 
+        if (this.lightmapComplexities.remove(sectionPos) == -1)
+            return false;
+
+        this.trivialLightmaps.remove(sectionPos);
         return true;
     }
 
@@ -399,6 +433,18 @@ public abstract class LightStorageMixin implements LightStorageAccessor
             if (!this.hasSection(sectionPos))
                 this.removeSection(lightProvider, sectionPos);
         }
+
+        // Add trivial lightmaps for vanilla compatibility
+
+        for (final LongIterator it = this.trivialLightmaps.iterator(); it.hasNext(); )
+        {
+            final long sectionPos = it.nextLong();
+
+            if (this.nonOptimizableSections.contains(sectionPos))
+                this.storage.put(sectionPos, this.createTrivialVanillaLightmap(sectionPos));
+        }
+
+        this.storage.clearCache();
 
         this.trivialLightmaps.clear();
     }
@@ -574,9 +620,32 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         }
 
         if (oldLevel >= 2 && level < 2)
+        {
             this.nonOptimizableSections.add(id);
 
+            if (this.enabledChunks.contains(ChunkSectionPos.withZeroY(id)) && this.getLightSection(id, true) == null)
+            {
+                this.storage.put(id, this.createTrivialVanillaLightmap(id));
+                this.dirtySections.add(id);
+                this.storage.clearCache();
+            }
+        }
+
         if (oldLevel < 2 && level >= 2)
+        {
             this.nonOptimizableSections.remove(id);
+
+            if (this.enabledChunks.contains(id))
+            {
+                final ChunkNibbleArray lightmap = this.getLightSection(id, true);
+
+                if (lightmap != null && ((IReadonly) lightmap).isReadonly())
+                {
+                    this.storage.removeChunk(id);
+                    this.dirtySections.add(id);
+                    this.storage.clearCache();
+                }
+            }
+        }
     }
 }

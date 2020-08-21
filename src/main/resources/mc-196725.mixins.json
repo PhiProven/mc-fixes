@@ -8,7 +8,8 @@
 		"SkyLightStorageDataMixin",
 		"ServerLightingProviderMixin",
 		"LightingProviderMixin",
-		"ChunkLightProviderMixin"
+		"ChunkLightProviderMixin",
+		"ChunkNibbleArrayMixin"
 	],
 	"client": [
 		"client.ClientWorldMixin",
