@@ -322,6 +322,10 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
                     this.removeSection(lightProvider, sectionPos);
             }
 
+            // Now the chunk can be disabled
+
+            this.enabledChunks.remove(chunkPos);
+
             // Now lightmaps can be removed
 
             int sections = 0;
@@ -351,7 +355,6 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
                     this.onUnloadSection(ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), i, ChunkSectionPos.unpackZ(chunkPos)));
 
             this.setColumnEnabled(chunkPos, false);
-            this.enabledChunks.remove(chunkPos);
         }
 
         this.markedDisabledChunks.clear();
