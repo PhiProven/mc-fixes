@@ -419,6 +419,40 @@ public abstract class SkyLightStorageMixin extends LightStorageMixin
     }
 
     @Override
+    protected ChunkNibbleArray createInitialVanillaLightmap(final long sectionPos)
+    {
+        // Attempt to restore data stripped from vanilla saves. See MC-198987
+
+        if (!this.readySections.contains(sectionPos) && !this.readySections.contains(ChunkSectionPos.offset(sectionPos, Direction.UP)))
+            return this.createTrivialVanillaLightmap(sectionPos);
+
+        // A lightmap should have been present in this case unless it was stripped from the vanilla save or the chunk is loaded for the first time.
+        // In both cases the lightmap should be initialized with zero.
+
+        final long sectionPosAbove = this.getSectionAbove(sectionPos);
+        final int complexity;
+
+        if (sectionPosAbove == Long.MAX_VALUE)
+            complexity = this.isSectionEnabled(sectionPos) ? 15 * 16 * 16 : 0;
+        else
+            complexity = this.vanillaLightmapComplexities.get(sectionPosAbove);
+
+        if (complexity == 0)
+            return this.createTrivialVanillaLightmap(null);
+
+        // Need to create an actual lightmap in this case as it is non-trivial
+
+        final ChunkNibbleArray lightmap = new ChunkNibbleArray(new byte[2048]);
+        this.storage.put(sectionPos, lightmap);
+        this.storage.clearCache();
+
+        this.onLoadSection(sectionPos);
+        this.setLightmapComplexity(sectionPos, complexity);
+
+        return lightmap;
+    }
+
+    @Override
     protected ChunkNibbleArray createTrivialVanillaLightmap(final long sectionPos)
     {
        final long sectionPosAbove = this.getSectionAbove(sectionPos);

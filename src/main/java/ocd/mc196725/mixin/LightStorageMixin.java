@@ -307,7 +307,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
                     this.setLightmapComplexity(sectionPos, this.getInitialLightmapComplexity(sectionPos, this.getLightSection(sectionPos, true)));
             }
 
-            // Add trivial lightmaps for vanilla compatibility
+            // Add lightmaps for vanilla compatibility and try to recover stripped data from vanilla saves
 
             for (int i = -1; i < 17; ++i)
             {
@@ -315,7 +315,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
 
                 if (this.nonOptimizableSections.contains(sectionPos) && this.getLightSection(sectionPos, true) == null)
                 {
-                    this.storage.put(sectionPos, this.createTrivialVanillaLightmap(sectionPos));
+                    this.storage.put(sectionPos, this.createInitialVanillaLightmap(sectionPos));
                     this.dirtySections.add(sectionPos);
                 }
             }
@@ -326,6 +326,12 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         this.storage.clearCache();
 
         this.markedEnabledChunks.clear();
+    }
+
+    @Unique
+    protected ChunkNibbleArray createInitialVanillaLightmap(final long sectionPos)
+    {
+        return this.createTrivialVanillaLightmap(sectionPos);
     }
 
     @Unique
