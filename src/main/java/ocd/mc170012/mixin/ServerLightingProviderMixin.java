@@ -1,6 +1,7 @@
 package ocd.mc170012.mixin;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.IntSupplier;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,6 +28,9 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
     }
 
     @Shadow
+    protected abstract void enqueue(int x, int z, IntSupplier completedLevelSupplier, ServerLightingProvider.Stage stage, Runnable task);
+
+    @Shadow
     protected abstract void enqueue(int x, int z, ServerLightingProvider.Stage stage, Runnable task);
 
     @Override
@@ -35,7 +39,7 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
         final ChunkPos chunkPos = chunk.getPos();
 
         // This evaluates the non-empty subchunks concurrently on the lighting thread...
-        this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(
+        this.enqueue(chunkPos.x, chunkPos.z, () -> 0, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(
             () -> this.setupLightmaps(chunk),
             () -> "setupLightmaps " + chunkPos)
         );
@@ -44,7 +48,7 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
             super.setRetainData(chunkPos, false);
             return chunk;
         },
-            (runnable) -> this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.POST_UPDATE, runnable)
+            (runnable) -> this.enqueue(chunkPos.x, chunkPos.z, () -> 0, ServerLightingProvider.Stage.POST_UPDATE, runnable)
         );
     }
 
