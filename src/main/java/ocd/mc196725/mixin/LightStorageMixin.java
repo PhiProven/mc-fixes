@@ -472,7 +472,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
     )
     private void initializeLightmap(final ChunkToNibbleArrayMap<?> lightmapArray, final long sectionPos, final ChunkNibbleArray lightmap)
     {
-        final ChunkNibbleArray oldLightmap = this.getLightSection(sectionPos, true);
+        final ChunkNibbleArray oldLightmap = this.getLightmap(sectionPos);
 
         this.beforeLightmapChange(sectionPos, oldLightmap, lightmap);
         this.storage.put(sectionPos, lightmap);
