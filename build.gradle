@@ -20,16 +20,6 @@ dependencies {
 			strictly '[2.0, 3.0)'
 		}
 	}
-	modRuntime('ocd:mc-fix_mc-169913') {
-		version {
-			strictly '[1.0, 2.0)'
-		}
-	}
-	modRuntime('ocd:mc-fix_mc-196542') {
-		version {
-			strictly '[1.0, 2.0)'
-		}
-	}
 }
 
 minecraft {
