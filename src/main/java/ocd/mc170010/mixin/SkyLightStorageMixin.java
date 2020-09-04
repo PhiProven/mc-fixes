@@ -177,15 +177,28 @@ public abstract class SkyLightStorageMixin extends LightStorage<SkyLightStorage.
                         spreadSourceSkylight(levelPropagator, BlockPos.add(blockPos, x, 16, z), Direction.DOWN);
             }
 
-            for (int y = 16; y > minY; --y)
+            for (final Direction dir : Direction.Type.HORIZONTAL)
             {
-                final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), y, ChunkSectionPos.unpackZ(chunkPos));
-                final long blockPos = BlockPos.asLong(ChunkSectionPos.getBlockCoord(ChunkSectionPos.unpackX(sectionPos)), ChunkSectionPos.getBlockCoord(y), ChunkSectionPos.getBlockCoord(ChunkSectionPos.unpackZ(sectionPos)));
+                // Skip propagations into sections directly exposed to skylight that are initialized in this update cycle
+                boolean spread = !this.initSkylightChunks.contains(ChunkSectionPos.offset(chunkPos, dir));
 
-                for (final Direction dir : Direction.Type.HORIZONTAL)
+                for (int y = 16; y > minY; --y)
                 {
-                    if (!this.hasSection(ChunkSectionPos.offset(sectionPos, dir)))
+                    final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), y, ChunkSectionPos.unpackZ(chunkPos));
+                    final long neighborSectionPos = ChunkSectionPos.offset(sectionPos, dir);
+
+                    if (!this.hasSection(neighborSectionPos))
                         continue;
+
+                    if (!spread)
+                    {
+                        if (this.readySections.contains(neighborSectionPos))
+                            spread = true;
+                        else
+                            continue;
+                    }
+
+                    final long blockPos = BlockPos.asLong(ChunkSectionPos.getBlockCoord(ChunkSectionPos.unpackX(sectionPos)), ChunkSectionPos.getBlockCoord(y), ChunkSectionPos.getBlockCoord(ChunkSectionPos.unpackZ(sectionPos)));
 
                     final int ox = 15 * Math.max(dir.getOffsetX(), 0);
                     final int oz = 15 * Math.max(dir.getOffsetZ(), 0);
