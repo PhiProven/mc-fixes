@@ -37,9 +37,6 @@ import ocd.mc196725.SkyLightStorageDataAccessor;
 public abstract class SkyLightStorageMixin extends LightStorageMixin
 {
     @Unique
-    private final LongSet markedOptimizableSections = new LongOpenHashSet();
-
-    @Unique
     private static final ChunkNibbleArray DIRECT_SKYLIGHT_MAP = createDirectSkyLightMap();
 
     @Unique
@@ -59,7 +56,7 @@ public abstract class SkyLightStorageMixin extends LightStorageMixin
     @Override
     public boolean hasSection(final long sectionPos)
     {
-        return super.hasSection(sectionPos) && (this.hasLightmap(sectionPos) || this.nonOptimizableSections.contains(sectionPos) || this.markedOptimizableSections.contains(sectionPos));
+        return super.hasSection(sectionPos) && this.getLightSection(sectionPos, true) != null;
     }
 
     // Queued lightmaps are only added to the world via updateLightmaps()
@@ -383,39 +380,9 @@ public abstract class SkyLightStorageMixin extends LightStorageMixin
         final int oldLevel = this.getLevel(id);
 
         if (oldLevel >= 2 && level < 2)
-        {
             ((SkyLightStorageDataAccessor) this.storage).updateMinHeight(ChunkSectionPos.unpackY(id));
-            this.markedOptimizableSections.remove(id);
-        }
-
-        if (oldLevel < 2 && level >= 2)
-            this.markedOptimizableSections.add(id);
 
         super.setLevel(id, level);
-    }
-
-    @Inject(
-        method = "updateLight(Lnet/minecraft/world/chunk/light/ChunkLightProvider;ZZ)V",
-        at = @At(
-            value = "INVOKE",
-            opcode = Opcodes.INVOKESPECIAL,
-            shift = Shift.AFTER,
-            target = "Lnet/minecraft/world/chunk/light/LightStorage;updateLight(Lnet/minecraft/world/chunk/light/ChunkLightProvider;ZZ)V"
-        )
-    )
-    private void makeSectionsSkylightOptimizable(final ChunkLightProvider<Data, ?> lightProvider, boolean doSkylight, boolean skipEdgeLightPropagation, final CallbackInfo ci)
-    {
-        for (final LongIterator it = this.markedOptimizableSections.iterator(); it.hasNext(); )
-        {
-            final long sectionPos = it.nextLong();
-
-            it.remove();
-
-            // Remove pending light updates for sections that no longer support light propagations
-
-            if (!this.hasSection(sectionPos))
-                this.removeSection(lightProvider, sectionPos);
-        }
     }
 
     @Override

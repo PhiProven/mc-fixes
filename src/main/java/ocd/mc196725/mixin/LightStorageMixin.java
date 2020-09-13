@@ -43,6 +43,8 @@ public abstract class LightStorageMixin implements LightStorageAccessor
     private final LongSet markedDisabledChunks = new LongOpenHashSet();
     @Unique
     private final LongSet trivialLightmaps = new LongOpenHashSet();
+    @Unique
+    private final LongSet vanillaLightmapsToRemove = new LongOpenHashSet();
 
     // This is put here since the relevant methods to overwrite are located in LightStorage
     @Unique
@@ -83,7 +85,10 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         else
         {
             if (((IReadonly) lightmap).isReadonly())
+            {
                 lightmap = lightmap.copy();
+                this.vanillaLightmapsToRemove.remove(sectionPos);
+            }
             else
                 return lightmap;
         }
@@ -276,6 +281,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         this.initializeChunks();
         this.removeChunks(lightProvider);
         this.removeTrivialLightmaps(lightProvider);
+        this.removeVanillaLightmaps(lightProvider);
     }
 
     @Unique
@@ -405,10 +411,15 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         this.dirtySections.add(sectionPos);
 
         if (this.lightmapComplexities.remove(sectionPos) == -1)
+        {
+            this.vanillaLightmapsToRemove.remove(sectionPos);
             return false;
-
-        this.trivialLightmaps.remove(sectionPos);
-        return true;
+        }
+        else
+        {
+            this.trivialLightmaps.remove(sectionPos);
+            return true;
+        }
     }
 
     @Unique
@@ -430,16 +441,6 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         for (final LongIterator it = this.trivialLightmaps.iterator(); it.hasNext(); )
             this.onUnloadSection(it.nextLong());
 
-        // Remove pending light updates for sections that no longer support light propagations
-
-        for (final LongIterator it = this.trivialLightmaps.iterator(); it.hasNext(); )
-        {
-            final long sectionPos = it.nextLong();
-
-            if (!this.hasSection(sectionPos))
-                this.removeSection(lightProvider, sectionPos);
-        }
-
         // Add trivial lightmaps for vanilla compatibility
 
         for (final LongIterator it = this.trivialLightmaps.iterator(); it.hasNext(); )
@@ -452,7 +453,43 @@ public abstract class LightStorageMixin implements LightStorageAccessor
 
         this.storage.clearCache();
 
+        // Remove pending light updates for sections that no longer support light propagations
+
+        for (final LongIterator it = this.trivialLightmaps.iterator(); it.hasNext(); )
+        {
+            final long sectionPos = it.nextLong();
+
+            if (!this.hasSection(sectionPos))
+                this.removeSection(lightProvider, sectionPos);
+        }
+
         this.trivialLightmaps.clear();
+    }
+
+    @Unique
+    private void removeVanillaLightmaps(final ChunkLightProvider<?, ?> lightProvider)
+    {
+        for (final LongIterator it = this.vanillaLightmapsToRemove.iterator(); it.hasNext(); )
+        {
+            final long sectionPos = it.nextLong();
+
+            this.storage.removeChunk(sectionPos);
+            this.dirtySections.add(sectionPos);
+        }
+
+        this.storage.clearCache();
+
+        // Remove pending light updates for sections that no longer support light propagations
+
+        for (final LongIterator it = this.vanillaLightmapsToRemove.iterator(); it.hasNext(); )
+        {
+            final long sectionPos = it.nextLong();
+
+            if (!this.hasSection(sectionPos))
+                this.removeSection(lightProvider, sectionPos);
+        }
+
+        this.vanillaLightmapsToRemove.clear();
     }
 
     @Redirect(
@@ -481,6 +518,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         if (oldLightmap == null)
             this.onLoadSection(sectionPos);
 
+        this.vanillaLightmapsToRemove.remove(sectionPos);
         this.setLightmapComplexity(sectionPos, this.getInitialLightmapComplexity(sectionPos, lightmap));
     }
 
@@ -629,7 +667,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
         {
             this.nonOptimizableSections.add(id);
 
-            if (this.enabledChunks.contains(ChunkSectionPos.withZeroY(id)) && this.getLightSection(id, true) == null)
+            if (this.enabledChunks.contains(ChunkSectionPos.withZeroY(id)) && !this.vanillaLightmapsToRemove.remove(id) && this.getLightSection(id, true) == null)
             {
                 this.storage.put(id, this.createTrivialVanillaLightmap(id));
                 this.dirtySections.add(id);
@@ -646,11 +684,7 @@ public abstract class LightStorageMixin implements LightStorageAccessor
                 final ChunkNibbleArray lightmap = this.getLightSection(id, true);
 
                 if (lightmap != null && ((IReadonly) lightmap).isReadonly())
-                {
-                    this.storage.removeChunk(id);
-                    this.dirtySections.add(id);
-                    this.storage.clearCache();
-                }
+                    this.vanillaLightmapsToRemove.add(id);
             }
         }
     }
