@@ -336,14 +336,8 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
 
                 this.queuedSections.remove(sectionPos);
 
-                if (this.storage.removeChunk(sectionPos) != null)
-                {
+                if (this.removeLightmap(sectionPos))
                     sections |= 1 << (i + 1);
-
-                    this.lightmapComplexities.remove(sectionPos);
-                    this.trivialLightmaps.remove(sectionPos);
-                    this.dirtySections.add(sectionPos);
-                }
             }
 
             // Calling onUnloadSection() after removing all the lightmaps is slightly more efficient
@@ -358,6 +352,23 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
         }
 
         this.markedDisabledChunks.clear();
+    }
+
+    /**
+     * Removes the lightmap associated to the provided <code>sectionPos</code>, but does not call {@link #onUnloadSection(long)} or {@link ChunkToNibbleArrayMap#clearCache()}
+     * @return Whether a lightmap was removed
+     */
+    @Unique
+    protected boolean removeLightmap(final long sectionPos)
+    {
+        if (this.storage.removeChunk(sectionPos) == null)
+            return false;
+
+        this.lightmapComplexities.remove(sectionPos);
+        this.trivialLightmaps.remove(sectionPos);
+        this.dirtySections.add(sectionPos);
+
+        return true;
     }
 
     @Unique

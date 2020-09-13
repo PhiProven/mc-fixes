@@ -136,14 +136,8 @@ public abstract class SkyLightStorageMixin extends LightStorageMixin
         {
             final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), y, ChunkSectionPos.unpackZ(chunkPos));
 
-            if (this.hasLightmap(sectionPos))
-            {
+            if (this.removeLightmap(sectionPos))
                 sections |= 1 << (y + 1);
-
-                this.storage.removeChunk(sectionPos);
-                this.lightmapComplexities.remove(sectionPos);
-                this.dirtySections.add(sectionPos);
-            }
         }
 
         // Calling onUnloadSection() after removing all the lightmaps is slightly more efficient
