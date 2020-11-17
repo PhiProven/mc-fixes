@@ -77,21 +77,12 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
      * @reason Move parts of the logic to {@link #setupLightmaps(Chunk)}
      */
     @Overwrite
-    public CompletableFuture<Chunk> light(Chunk chunk, boolean excludeBlocks)
+    public CompletableFuture<Chunk> light(final Chunk chunk, final boolean excludeBlocks)
     {
         final ChunkPos chunkPos = chunk.getPos();
 
-        this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(() -> {
-            if (!chunk.isLightOn())
-                super.setColumnEnabled(chunkPos, true);
-
-            if (!excludeBlocks)
-            {
-                chunk.getLightSourcesStream().forEach((blockPos) -> {
-                    super.addLightSource(blockPos, chunk.getLuminance(blockPos));
-                });
-            }
-        },
+        this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.PRE_UPDATE, Util.debugRunnable(
+            () -> this.processInitialLighting(chunk, excludeBlocks),
             () -> "lightChunk " + chunkPos + " " + excludeBlocks
         ));
 
@@ -103,5 +94,20 @@ public abstract class ServerLightingProviderMixin extends LightingProvider imple
         },
             (runnable) -> this.enqueue(chunkPos.x, chunkPos.z, ServerLightingProvider.Stage.POST_UPDATE, runnable)
         );
+    }
+
+    private void processInitialLighting(final Chunk chunk, final boolean excludeBlocks)
+    {
+        final ChunkPos chunkPos = chunk.getPos();
+
+        if (!chunk.isLightOn())
+            super.setColumnEnabled(chunkPos, true);
+
+        if (!excludeBlocks)
+        {
+            chunk.getLightSourcesStream().forEach((blockPos) -> {
+                super.addLightSource(blockPos, chunk.getLuminance(blockPos));
+            });
+        }
     }
 }
