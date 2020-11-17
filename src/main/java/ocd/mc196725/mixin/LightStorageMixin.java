@@ -25,11 +25,10 @@ import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkToNibbleArrayMap;
 import net.minecraft.world.chunk.light.ChunkLightProvider;
 import net.minecraft.world.chunk.light.LightStorage;
-import ocd.mc196725.ILightUpdatesHandler;
 import ocd.mc196725.LightStorageAccessor;
 
 @Mixin(LightStorage.class)
-public abstract class LightStorageMixin implements LightStorageAccessor, ILightUpdatesHandler
+public abstract class LightStorageMixin implements LightStorageAccessor
 {
     @Unique
     private final LongSet enabledChunks = new LongOpenHashSet();
@@ -211,38 +210,39 @@ public abstract class LightStorageMixin implements LightStorageAccessor, ILightU
         return this.enabledChunks.contains(ChunkSectionPos.withZeroY(sectionPos));
     }
 
-    @Override
-    public void enableLightUpdates(final long chunkPos)
-    {
-        if (this.markedDisabledChunks.remove(chunkPos) || this.enabledChunks.contains(chunkPos))
-            return;
-
-        this.markedEnabledChunks.add(chunkPos);
-        this.checkForLightUpdates();
-    }
-
     @Shadow
     protected abstract void setColumnEnabled(final long columnPos, final boolean enabled);
 
     @Override
-    public void disableLightUpdates(final long chunkPos)
+    public void setLightUpdatesEnabled(final long chunkPos, final boolean enabled)
     {
-        if (this.markedEnabledChunks.remove(chunkPos) || !this.enabledChunks.contains(chunkPos))
+        if (enabled)
         {
-            for (int i = -1; i < 17; ++i)
-            {
-                final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), i, ChunkSectionPos.unpackZ(chunkPos));
+            if (this.markedDisabledChunks.remove(chunkPos) || this.enabledChunks.contains(chunkPos))
+                return;
 
-                if (this.storage.removeChunk(sectionPos) != null)
-                    this.dirtySections.add(sectionPos);
-            }
-
-            this.setColumnEnabled(chunkPos, false);
+            this.markedEnabledChunks.add(chunkPos);
+            this.checkForLightUpdates();
         }
         else
         {
-            this.markedDisabledChunks.add(chunkPos);
-            this.checkForLightUpdates();
+            if (this.markedEnabledChunks.remove(chunkPos) || !this.enabledChunks.contains(chunkPos))
+            {
+                for (int i = -1; i < 17; ++i)
+                {
+                    final long sectionPos = ChunkSectionPos.asLong(ChunkSectionPos.unpackX(chunkPos), i, ChunkSectionPos.unpackZ(chunkPos));
+
+                    if (this.storage.removeChunk(sectionPos) != null)
+                        this.dirtySections.add(sectionPos);
+                }
+
+                this.setColumnEnabled(chunkPos, false);
+            }
+            else
+            {
+                this.markedDisabledChunks.add(chunkPos);
+                this.checkForLightUpdates();
+            }
         }
     }
 

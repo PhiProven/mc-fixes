@@ -11,7 +11,6 @@
 		"ChunkLightProviderMixin"
 	],
 	"client": [
-		"client.ClientChunkManagerMixin",
 		"client.ClientWorldMixin",
 		"client.ClientPlayNetworkHandlerMixin"
 	],

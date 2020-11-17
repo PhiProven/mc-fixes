@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import net.minecraft.world.chunk.light.ChunkLightProvider;
 import net.minecraft.world.chunk.light.LightingProvider;
-import ocd.mc196725.ILightUpdatesHandler;
+import ocd.mc196725.InitialLightingHandler;
 
 @Mixin(LightingProvider.class)
-public abstract class LightingProviderMixin implements ILightUpdatesHandler
+public abstract class LightingProviderMixin implements InitialLightingHandler
 {
     @Shadow
     @Final
@@ -20,12 +20,22 @@ public abstract class LightingProviderMixin implements ILightUpdatesHandler
     private ChunkLightProvider<?, ?> skyLightProvider;
 
     @Override
+    public void enableSourceLight(final long chunkPos)
+    {
+        if (this.blockLightProvider != null)
+            ((InitialLightingHandler) this.blockLightProvider).enableSourceLight(chunkPos);
+
+        if (this.skyLightProvider != null)
+            ((InitialLightingHandler) this.skyLightProvider).enableSourceLight(chunkPos);
+    }
+
+    @Override
     public void enableLightUpdates(final long chunkPos)
     {
         if (this.blockLightProvider != null)
-            ((ILightUpdatesHandler) this.blockLightProvider).enableLightUpdates(chunkPos);
+            ((InitialLightingHandler) this.blockLightProvider).enableLightUpdates(chunkPos);
 
         if (this.skyLightProvider != null)
-            ((ILightUpdatesHandler) this.skyLightProvider).enableLightUpdates(chunkPos);
+            ((InitialLightingHandler) this.skyLightProvider).enableLightUpdates(chunkPos);
     }
 }

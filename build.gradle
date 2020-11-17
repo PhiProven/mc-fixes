@@ -17,7 +17,7 @@ dependencies {
 	
 	modImplementation('ocd:mc-fix_mc-170012') {
 		version {
-			strictly '[2.0, 3.0)'
+			strictly '[2.2, 3.0)'
 		}
 	}
 	modImplementation('ocd:mc-fix_mc-170010') {
