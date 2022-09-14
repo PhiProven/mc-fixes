@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "profiler-threshold",
+  "version": "${version}",
+
+  "name": "Profiler threshold",
+  "description": "This mod improves the profiler threshold for better granularity",
+  "authors": [
+    "PhiPro95"
+  ],
+  "contact": {
+    "sources": "https://github.com/PhiPro95/mc-fixes/tree/profiler-threshold"
+  },
+
+  "license": "LGPL-3.0-only",
+
+  "environment": "*",
+  "mixins": [
+    "profiler-threshold.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": "1.19.x"
+  }
+}

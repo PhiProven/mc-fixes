@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "net.caffeinemc.mixin",
+  "mixins": [
+    "MixinProfilerSystem"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
